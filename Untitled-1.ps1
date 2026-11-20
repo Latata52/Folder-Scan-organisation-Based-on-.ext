@@ -4,6 +4,7 @@ Function PathVerification
     $Retry =1
     While($Retry -eq 1)
     {
+        Write-Host "If you want to terminate the process, type end"
         $FilePath = Read-Host "Please enter a valid Folder Path to be scanned" 
         if (Test-Path -LiteralPath "$FilePath" -PathType container)
             {
