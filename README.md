@@ -10,9 +10,10 @@ Once all extensions are grouped, folders of their designated media type are crea
 - Composes report on the amount of files scanned and grouped together. 
 
 ## Installation
-- 1)Download latest version of project
-- 2)extract files
-- 3)Execute .PS1 script
+1.Download latest version of project
+2.extract files
+3.Execute .PS1 script
+
 If you encounter an execution error, do the following
-- 1)Review the script before unblocking it from the security policy
-- 2)Run: Unblock-File -Path ".\Untitled-1.ps1"
+1.Review the script before unblocking it from the security policy
+2.Run: Unblock-File -Path ".\Untitled-1.ps1"
