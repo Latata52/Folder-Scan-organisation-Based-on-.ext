@@ -1,0 +1,49 @@
+
+Function PathVerification
+{
+    $Retry =1
+    While($Retry -eq 1)
+    {
+        $FilePath = Read-Host "Please enter a valid Folder Path to be scanned" 
+        if (Test-Path -LiteralPath "$FilePath" -PathType container)
+            {
+            Write-Output "File Path Provided, $FilePath , is valid"
+            $ConfirmFile=Read-Host "Are you sure you want to scan $Filepath (y/n)"
+                switch($ConfirmFile){
+                    n
+                    { 
+                        $Retry=1
+                    }
+                    y
+                    {
+                        $Retry=0
+                        # FileScan
+                    }
+                    Default 
+                    {
+                        Write-Host "invalid input"
+                        $Retry=1
+                    }
+                }
+            }
+        else{
+            Write-Output "File Path provided is invalid"
+            $Retry=1
+        }
+    }
+}
+
+Function FileScan
+{
+    #we scanning the folder
+}
+function Invoke-start 
+{
+    Write-Host "When specying a path to another drive, ensure to specify the letter."
+    Write-Host "Example: D:\home\user\ta000025"
+    Write-host "********************************************************************"
+    PathVerification
+}
+
+Invoke-start
+
