@@ -26,6 +26,12 @@ Function PathVerification
                     }
                 }
             }
+        elseif ($FilePath -eq "end")
+        {
+            Write-Output "Ending Process"
+            $Retry=0
+            exit
+        }
         else{
             Write-Output "File Path provided is invalid"
             $Retry=1
