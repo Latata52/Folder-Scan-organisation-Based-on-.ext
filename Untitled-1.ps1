@@ -22,7 +22,7 @@ Function PathVerification
                     y
                     {
                         $Retry=0
-                        FileScan
+                        FileExt
                     }
                     Default 
                     {
@@ -44,10 +44,15 @@ Function PathVerification
     }
 }
 
-Function FileScan
+Function FileExt
 {
-    Get-ChildItem -LiteralPath $FilePath -File | Select-Object -Property Name, Extension
+    $Extensions= Get-ChildItem -LiteralPath $FilePath -File | Select-Object -Property Extension | where-object { $_ } | Sort-Object -Unique
+    $FileScan= Get-ChildItem -LiteralPath $FilePath -File | Select-Object -Property Extension
 }
+
+# Function ContainerCreation
+# Function Move Script
+# Generate Report within Console & in txt File
 function Invoke-start 
 {
     Write-Host "When specying a path to another drive, ensure to specify the letter."
