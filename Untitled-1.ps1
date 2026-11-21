@@ -6,6 +6,10 @@ Function PathVerification
     {
         Write-Host "If you want to terminate the process, type end"
         $FilePath = Read-Host "Please enter a valid Folder Path to be scanned" 
+        if ($FilePath -eq "")
+        {
+            $FilePath=$PWD
+        }
         if (Test-Path -LiteralPath "$FilePath" -PathType container)
             {
             Write-Output "File Path Provided, $FilePath , is valid"
@@ -18,7 +22,7 @@ Function PathVerification
                     y
                     {
                         $Retry=0
-                        # FileScan
+                        FileScan
                     }
                     Default 
                     {
@@ -42,7 +46,7 @@ Function PathVerification
 
 Function FileScan
 {
-    #we scanning the folder
+    Get-ChildItem -LiteralPath $FilePath -File | Select-Object -Property Name, Extension
 }
 function Invoke-start 
 {
