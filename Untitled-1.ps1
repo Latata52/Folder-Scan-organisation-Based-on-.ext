@@ -34,8 +34,7 @@ Function PathVerification
         elseif ($FilePath -eq "end")
         {
             Write-Output "Ending Process"
-            $Retry=0
-            exit
+            $Retry=0 
         }
         else{
             Write-Output "File Path provided is invalid"
@@ -104,6 +103,15 @@ Function ContainerCreation
                     y
                     {
                         $ContainerPath = Join-Path -Path $FilePath -ChildPath $Container
+                        ForEach($Extension in $Extensions)
+                        {
+                            $FolderName = $Extension.TrimStart('.')
+                            $ChildPath = Join-Path -Path $ContainerPath -ChildPath $FolderName
+                            if (!(Test-Path -LiteralPath $ChildPath -PathType Container))
+                            {
+                                New-Item -Path $ChildPath -ItemType Directory
+                            }
+                        }
                         $LoopContainer=0
                         #move Script
                     }
@@ -120,9 +128,14 @@ Function ContainerCreation
         }
     #Name The Top Parent Container
     #Built Child Containers based on $Extension
-    }   
+    }    
 }
+
 # Function Move Script
+Function MoveContainer
+{
+    
+}
 # Generate Report within Console & in txt File
 function Invoke-start 
 {
