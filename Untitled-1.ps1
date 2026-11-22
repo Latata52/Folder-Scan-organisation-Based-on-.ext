@@ -46,11 +46,82 @@ Function PathVerification
 
 Function FileExt
 {
-    $Extensions= Get-ChildItem -LiteralPath $FilePath -File | Select-Object -Property Extension | where-object { $_ } | Sort-Object -Unique
-    $FileScan= Get-ChildItem -LiteralPath $FilePath -File | Select-Object -Property Extension
+    $FileScan = Get-ChildItem -LiteralPath $FilePath -File    
+    $Extensions = $FileScan |
+        Select-Object -ExpandProperty Extension |
+        Where-Object { $_ } |
+        Sort-Object -Unique
+    ContainerCreation
 }
 
-# Function ContainerCreation
+Function ContainerCreation
+{
+    $LoopContainer = 1
+    While($LoopContainer -eq 1)
+    {
+        $Container = Read-Host "Please enter the name of the Parent Container Folder"
+        if(!(Test-Path -LiteralPath $Filepath/$Container -PathType Container ))
+        {
+            $ConfirmFile=Read-Host "Are you sure you want to create $ContainerPath (y/n)"
+                switch($ConfirmFile)
+                {
+                    n
+                    { 
+                        $LoopContainer=1
+                    }
+                    y
+                    {
+                        New-Item -Path "$FilePath/$Container" -ItemType Directory
+                        $ContainerPath = Join-Path -Path $FilePath -ChildPath $Container
+                        ForEach($Extension in $Extensions)
+                        {
+                            $FolderName = $Extension.TrimStart('.')
+                            $ChildPath = Join-Path -Path $ContainerPath -ChildPath $FolderName
+                            if (!(Test-Path -LiteralPath $ChildPath -PathType Container))
+                            {
+                                New-Item -Path $ChildPath -ItemType Directory
+                            }
+                        }
+                        $LoopContainer=0
+                        #move Script
+                    }
+                    Default 
+                    {
+                        Write-Host "invalid input"
+                        $LoopContainer=1
+                    }
+                }
+        }
+        elseif(Test-Path -LiteralPath $Filepath/$Container -PathType Container)
+        {
+            $ConfirmFile=Read-Host "The File $FilePath/$Container has already been created, do you want to use it?(y/n)"
+            switch($ConfirmFile)
+                {
+                    n
+                    { 
+                        $LoopContainer=1
+                    }
+                    y
+                    {
+                        $ContainerPath = Join-Path -Path $FilePath -ChildPath $Container
+                        $LoopContainer=0
+                        #move Script
+                    }
+                    Default 
+                    {
+                        Write-Host "invalid input"
+                        $LoopContainer=1
+                    }
+                }
+            }
+        else 
+        {
+            Write-Host "Input is invalid please try again"
+        }
+    #Name The Top Parent Container
+    #Built Child Containers based on $Extension
+    }   
+}
 # Function Move Script
 # Generate Report within Console & in txt File
 function Invoke-start 
