@@ -153,8 +153,11 @@ Function OrganiseMedia
     }
 
     $DestinationOrganisation = Join-Path -Path $ContainerPath -ChildPath $FolderName     
-    Foreach ($Category in $Categories)
+    Foreach ($Extension in $Extensions)
     {
+        $FolderName = $Extension.TrimStart('.')
+
+        $ChildPath = Join-Path -Path $ContainerPath -ChildPath $FolderName
          if ($Categories.ContainsKey($Extension))
         {
             $FolderName = $Categories[$Extension]
