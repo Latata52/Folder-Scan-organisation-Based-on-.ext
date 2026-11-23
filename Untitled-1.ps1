@@ -59,9 +59,14 @@ Function ContainerCreation
     While($LoopContainer -eq 1)
     {
         $Container = Read-Host "Please enter the name of the Parent Container Folder"
+        if ([string]::IsNullOrWhiteSpace($Container))
+        {
+            Write-Host "Name cannot be empty"
+            continue
+        }
         if(!(Test-Path -LiteralPath $Filepath/$Container -PathType Container ))
         {
-            $ConfirmFile=Read-Host "Are you sure you want to create $ContainerPath (y/n)"
+            $ConfirmFile=Read-Host "Are you sure you want to create $FilePath/$Container (y/n)"
                 switch($ConfirmFile)
                 {
                     n
@@ -122,10 +127,6 @@ Function ContainerCreation
                     }
                 }
             }
-        else 
-        {
-            Write-Host "Input is invalid please try again"
-        }
     #Name The Top Parent Container
     #Built Child Containers based on $Extension
     }    
@@ -137,8 +138,8 @@ Function MoveContainer
     $MoveCount = 0
     ForEach ($File in $FileScan)
     {
-    $Extension = $File.Extension.TrimStart('.')
-    $DestinationMove = Join-Path -Path $ContainerPath -ChildPath $Extension
+        $Extension = $File.Extension.TrimStart('.')
+        $DestinationMove = Join-Path -Path $ContainerPath -ChildPath $Extension
 
            try
         {
@@ -193,8 +194,7 @@ Function GenerateReport
     $User = $env:USERNAME
     $DateTime = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
     $Workgroup = (Get-CimInstance Win32_ComputerSystem).Workgroup
-    $IPv4 = Get-NetIPConfiguration |
-    Select-Object InterfaceAlias, IPv4Address, IPv4DefaultGateway
+    $IPv4 = (Get-NetIPConfiguration | Where-Object { $_.IPv4DefaultGateway } | Select-Object -First 1).IPv4Address.IPAddress
     $FileScanCount = $FileScan.Count
     $FileTypeCount = $Extensions.Count
 
