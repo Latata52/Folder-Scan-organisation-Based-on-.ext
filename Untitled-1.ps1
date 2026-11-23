@@ -144,7 +144,7 @@ Function MoveContainer
         {
             Move-Item -LiteralPath $File.FullName -Destination $DestinationMove -ErrorAction Stop | Out-Null
 
-            $MovedCount++
+            $MoveCount++
         }
         catch
         {
@@ -193,18 +193,15 @@ Function GenerateReport
     $User = $env:USERNAME
     $DateTime = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
     $Workgroup = (Get-CimInstance Win32_ComputerSystem).Workgroup
-    $IPv4 = (
-    Get-NetIPAddress -AddressFamily IPv4 |
-    Where-Object {
-        $_.IPAddress -like "10.*" -or
-        $_.IPAddress -like "172." -or
-        $_.IPAddress -like "192.168.*"
-    } |
-    Select-Object -ExpandProperty IPAddress
-    )  -join ", "
+    Get-NetIPConfiguration |
+Where-Object { $_.IPv4DefaultGateway } |
+Select-Object -First 1 -ExpandProperty IPv4Address |
+Select-Object -ExpandProperty IPAddress
     $FileScanCount = $FileScan.Count
     $FileTypeCount = $Extensions.Count
 
+    $ReportPath = Join-Path -Path $ContainerPath -ChildPath "Report.txt"
+    
     Write-Host "Summary of Operations"
     $Report= @" 
     The Computer Name is $ComputerName
@@ -215,8 +212,10 @@ Function GenerateReport
     The amount of files scanned is $FileScanCount
     The amount of Extensions scanned is $FileTypeCount
     The amount of files moved is $MoveCount
+    This report will be contained in $ReportPath
 "@
-    WRite-Host $Report
+    $Report | Out-File -FilePath $ReportPath -Encoding utf8
+    Write-Host $Report
 
    # ContainerPath
 }
