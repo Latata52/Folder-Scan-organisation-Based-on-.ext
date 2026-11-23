@@ -70,7 +70,7 @@ Function ContainerCreation
                     }
                     y
                     {
-                        New-Item -Path "$FilePath/$Container" -ItemType Directory
+                        New-Item -Path "$FilePath/$Container" -ItemType Directory | Out-Null
                         $ContainerPath = Join-Path -Path $FilePath -ChildPath $Container
                         ForEach($Extension in $Extensions)
                         {
@@ -78,7 +78,7 @@ Function ContainerCreation
                             $ChildPath = Join-Path -Path $ContainerPath -ChildPath $FolderName
                             if (!(Test-Path -LiteralPath $ChildPath -PathType Container))
                             {
-                                New-Item -Path $ChildPath -ItemType Directory
+                                New-Item -Path $ChildPath -ItemType Directory | Out-Null
                             }
                         }
                         $LoopContainer=0
@@ -109,7 +109,7 @@ Function ContainerCreation
                             $ChildPath = Join-Path -Path $ContainerPath -ChildPath $FolderName
                             if (!(Test-Path -LiteralPath $ChildPath -PathType Container))
                             {
-                                New-Item -Path $ChildPath -ItemType Directory
+                                New-Item -Path $ChildPath -ItemType Directory | Out-Null
                             }
                         }
                         $LoopContainer=0
@@ -134,14 +134,24 @@ Function ContainerCreation
 # Function Move Script
 Function MoveContainer
 {
+    $MoveCount = 0
     ForEach ($File in $FileScan)
     {
     $Extension = $File.Extension.TrimStart('.')
     $DestinationMove = Join-Path -Path $ContainerPath -ChildPath $Extension
 
-    Move-Item -LiteralPath $File.FullName -Destination $DestinationMove
+           try
+        {
+            Move-Item -LiteralPath $File.FullName -Destination $DestinationMove -ErrorAction Stop | Out-Null
+
+            $MovedCount++
+        }
+        catch
+        {
+            Write-Warning "Failed to move $($File.Name)"
+        }
     }
-    OrganiseMedia
+    OrganiseMedia 
 }
 Function OrganiseMedia
 {
@@ -171,16 +181,45 @@ Function OrganiseMedia
 
         New-Item -ItemType Directory -Path $DestinationOrganisation -Force | Out-Null
 
-        Move-Item -LiteralPath $ChildPath -Destination $DestinationOrganisation
+        Move-Item -LiteralPath $ChildPath -Destination $DestinationOrganisation | Out-Null
     }
+    GenerateReport
 
 }
 
-#Function GenerateReport
-#{
-#    read-Host "SUMMARY OF OPERATIONS"
+Function GenerateReport
+{
+    $ComputerName = $env:COMPUTERNAME
+    $User = $env:USERNAME
+    $DateTime = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
+    $Workgroup = (Get-CimInstance Win32_ComputerSystem).Workgroup
+    $IPv4 = (
+    Get-NetIPAddress -AddressFamily IPv4 |
+    Where-Object {
+        $_.IPAddress -like "10.*" -or
+        $_.IPAddress -like "172." -or
+        $_.IPAddress -like "192.168.*"
+    } |
+    Select-Object -ExpandProperty IPAddress
+    )  -join ", "
+    $FileScanCount = $FileScan.Count
+    $FileTypeCount = $Extensions.Count
 
-#}
+    Write-Host "Summary of Operations"
+    $Report= @" 
+    The Computer Name is $ComputerName
+    The current username is $User
+    The current Time an date is $DateTime
+    The Current Workgroup is $Workgroup
+    The current Ip is $IPv4
+    The amount of files scanned is $FileScanCount
+    The amount of Extensions scanned is $FileTypeCount
+    The amount of files moved is $MoveCount
+"@
+    WRite-Host $Report
+
+   # ContainerPath
+}
 # Generate Report within Console & in txt File
 function Invoke-start 
 {
