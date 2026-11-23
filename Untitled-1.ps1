@@ -134,13 +134,55 @@ Function ContainerCreation
 # Function Move Script
 Function MoveContainer
 {
-    
+    ForEach ($File in $FileScan)
+    {
+    $Extension = $File.Extension.TrimStart('.')
+    $DestinationMove = Join-Path -Path $ContainerPath -ChildPath $Extension
+
+    Move-Item -LiteralPath $File.FullName -Destination $DestinationMove
+    }
+    OrganiseMedia
 }
+Function OrganiseMedia
+{
+    $Categories = 
+    @{
+    ".txt" = "TextFiles"
+    ".jpg" = "Images"
+    ".pdf" = "PDFs"
+    }
+
+    $DestinationOrganisation = Join-Path -Path $ContainerPath -ChildPath $FolderName     
+    Foreach ($Category in $Categories)
+    {
+         if ($Categories.ContainsKey($Extension))
+        {
+            $FolderName = $Categories[$Extension]
+        }
+        else
+        {
+            $FolderName = "UnknownFiles"
+        }
+
+        $DestinationOrganisation = Join-Path -Path $ContainerPath -ChildPath $FolderName
+
+        New-Item -ItemType Directory -Path $DestinationOrganisation -Force | Out-Null
+
+        Move-Item -LiteralPath $ChildPath -Destination $DestinationOrganisation
+    }
+
+}
+
+#Function GenerateReport
+#{
+#    read-Host "SUMMARY OF OPERATIONS"
+
+#}
 # Generate Report within Console & in txt File
 function Invoke-start 
 {
     Write-Host "When specying a path to another drive, ensure to specify the letter."
-    Write-Host "Example: D:\home\user\ta000025"
+    Write-Host "Example: D:\home\user\example drive"
     Write-host "********************************************************************"
     PathVerification
 }
