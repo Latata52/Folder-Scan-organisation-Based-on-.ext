@@ -193,10 +193,8 @@ Function GenerateReport
     $User = $env:USERNAME
     $DateTime = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
     $Workgroup = (Get-CimInstance Win32_ComputerSystem).Workgroup
-    Get-NetIPConfiguration |
-Where-Object { $_.IPv4DefaultGateway } |
-Select-Object -First 1 -ExpandProperty IPv4Address |
-Select-Object -ExpandProperty IPAddress
+    $IPv4= Get-NetIPConfiguration |
+    Select-Object InterfaceAlias, IPv4Address, IPv4DefaultGateway
     $FileScanCount = $FileScan.Count
     $FileTypeCount = $Extensions.Count
 
