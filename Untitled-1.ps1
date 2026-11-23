@@ -214,6 +214,7 @@ Function GenerateReport
 "@
     $Report | Out-File -FilePath $ReportPath -Encoding utf8
     Write-Host $Report
+    Read-Host "Press Enter to exit"
 
    # ContainerPath
 }
