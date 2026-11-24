@@ -1,5 +1,4 @@
-
-Function PathVerification
+Function PathVerification #Began the script to verify the path provided by the user is valid and exists
 {
     $Retry =1
     While($Retry -eq 1)
@@ -42,8 +41,8 @@ Function PathVerification
         }
     }
 }
-
-Function FileExt
+ 
+Function FileExt #Scan the folder provided by the user and get the file extensions of the files within the folder
 {
     $FileScan = Get-ChildItem -LiteralPath $FilePath -File    
     $Extensions = $FileScan |
@@ -53,7 +52,7 @@ Function FileExt
     ContainerCreation
 }
 
-Function ContainerCreation
+Function ContainerCreation # Create a parent container folder and child folders based on the file extensions found in the scanned folder
 {
     $LoopContainer = 1
     While($LoopContainer -eq 1)
@@ -133,7 +132,7 @@ Function ContainerCreation
 }
 
 # Function Move Script
-Function MoveContainer
+Function MoveContainer # Move the files from the scanned folder to the newly created parent container and child containers based on the file extensions
 {
     $MoveCount = 0
     ForEach ($File in $FileScan)
@@ -154,7 +153,7 @@ Function MoveContainer
     }
     OrganiseMedia 
 }
-Function OrganiseMedia
+Function OrganiseMedia # Organise the files based on the file extensions and move them to their respective folders
 {
     $Categories = 
     @{
@@ -187,8 +186,8 @@ Function OrganiseMedia
     GenerateReport
 
 }
-
-Function GenerateReport
+ 
+Function GenerateReport # Generate a report of the operations performed and save it to a text file
 {
     $ComputerName = $env:COMPUTERNAME
     $User = $env:USERNAME
