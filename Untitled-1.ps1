@@ -1,7 +1,7 @@
-Function PathVerification #Began the script to verify the path provided by the user is valid and exists
+function PathVerification #Began the script to verify the path provided by the user is valid and exists
 {
     $Retry =1
-    While($Retry -eq 1)
+    while($Retry -eq 1)
     {
         Write-Host "If you want to terminate the process, type end"
         $FilePath = Read-Host "Please enter a valid Folder Path to be scanned" 
@@ -10,26 +10,26 @@ Function PathVerification #Began the script to verify the path provided by the u
             $FilePath=$PWD
         }
         if (Test-Path -LiteralPath "$FilePath" -PathType container)
-            {
+        {
             Write-Output "File Path Provided, $FilePath , is valid"
             $ConfirmFile=Read-Host "Are you sure you want to scan $Filepath (y/n)"
-                switch($ConfirmFile){
-                    n
-                    { 
-                        $Retry=1
-                    }
-                    y
-                    {
-                        $Retry=0
-                        FileExt
-                    }
-                    Default 
-                    {
-                        Write-Host "invalid input"
-                        $Retry=1
-                    }
+            switch($ConfirmFile){
+                n
+                { 
+                    $Retry=1
+                }
+                y
+                {
+                    $Retry=0
+                    FileExt
+                }
+                Default 
+                {
+                    Write-Host "invalid input"
+                    $Retry=1
                 }
             }
+        }
         elseif ($FilePath -eq "end")
         {
             Write-Output "Ending Process"
@@ -42,7 +42,7 @@ Function PathVerification #Began the script to verify the path provided by the u
     }
 }
  
-Function FileExt #Scan the folder provided by the user and get the file extensions of the files within the folder
+function FileExt #Scan the folder provided by the user and get the file extensions of the files within the folder
 {
     $FileScan = Get-ChildItem -LiteralPath $FilePath -File    
     $Extensions = $FileScan |
@@ -52,10 +52,10 @@ Function FileExt #Scan the folder provided by the user and get the file extensio
     ContainerCreation
 }
 
-Function ContainerCreation # Create a parent container folder and child folders based on the file extensions found in the scanned folder
+function ContainerCreation # Create a parent container folder and child folders based on the file extensions found in the scanned folder
 {
     $LoopContainer = 1
-    While($LoopContainer -eq 1)
+    while($LoopContainer -eq 1)
     {
         $Container = Read-Host "Please enter the name of the Parent Container Folder"
         if ([string]::IsNullOrWhiteSpace($Container))
@@ -66,81 +66,81 @@ Function ContainerCreation # Create a parent container folder and child folders 
         if(!(Test-Path -LiteralPath $Filepath/$Container -PathType Container ))
         {
             $ConfirmFile=Read-Host "Are you sure you want to create $FilePath/$Container (y/n)"
-                switch($ConfirmFile)
-                {
-                    n
-                    { 
-                        $LoopContainer=1
-                    }
-                    y
-                    {
-                        New-Item -Path "$FilePath/$Container" -ItemType Directory | Out-Null
-                        $ContainerPath = Join-Path -Path $FilePath -ChildPath $Container
-                        ForEach($Extension in $Extensions)
-                        {
-                            $FolderName = $Extension.TrimStart('.')
-                            $ChildPath = Join-Path -Path $ContainerPath -ChildPath $FolderName
-                            if (!(Test-Path -LiteralPath $ChildPath -PathType Container))
-                            {
-                                New-Item -Path $ChildPath -ItemType Directory | Out-Null
-                            }
-                        }
-                        $LoopContainer=0
-                        MoveContainer
-                    }
-                    Default 
-                    {
-                        Write-Host "invalid input"
-                        $LoopContainer=1
-                    }
+            switch($ConfirmFile)
+            {
+                n
+                { 
+                    $LoopContainer=1
                 }
+                y
+                {
+                    New-Item -Path "$FilePath/$Container" -ItemType Directory | Out-Null
+                    $ContainerPath = Join-Path -Path $FilePath -ChildPath $Container
+                    ForEach($Extension in $Extensions)
+                    {
+                        $FolderName = $Extension.TrimStart('.')
+                        $ChildPath = Join-Path -Path $ContainerPath -ChildPath $FolderName
+                        if (!(Test-Path -LiteralPath $ChildPath -PathType Container))
+                        {
+                            New-Item -Path $ChildPath -ItemType Directory | Out-Null
+                        }
+                    }
+                    $LoopContainer=0
+                    MoveContainer
+                }
+                Default 
+                {
+                    Write-Host "invalid input"
+                    $LoopContainer=1
+                }
+            }
         }
         elseif(Test-Path -LiteralPath $Filepath/$Container -PathType Container)
         {
             $ConfirmFile=Read-Host "The File $FilePath/$Container has already been created, do you want to use it?(y/n)"
             switch($ConfirmFile)
+            {
+                n
+                { 
+                    $LoopContainer=1
+                }
+                y
                 {
-                    n
-                    { 
-                        $LoopContainer=1
-                    }
-                    y
+                    $ContainerPath = Join-Path -Path $FilePath -ChildPath $Container
+                    ForEach($Extension in $Extensions)
                     {
-                        $ContainerPath = Join-Path -Path $FilePath -ChildPath $Container
-                        ForEach($Extension in $Extensions)
+                        $FolderName = $Extension.TrimStart('.')
+                        $ChildPath = Join-Path -Path $ContainerPath -ChildPath $FolderName
+                        if (!(Test-Path -LiteralPath $ChildPath -PathType Container))
                         {
-                            $FolderName = $Extension.TrimStart('.')
-                            $ChildPath = Join-Path -Path $ContainerPath -ChildPath $FolderName
-                            if (!(Test-Path -LiteralPath $ChildPath -PathType Container))
-                            {
-                                New-Item -Path $ChildPath -ItemType Directory | Out-Null
-                            }
+                            New-Item -Path $ChildPath -ItemType Directory | Out-Null
                         }
-                        $LoopContainer=0
-                        MoveContainer
                     }
-                    Default 
-                    {
-                        Write-Host "invalid input"
-                        $LoopContainer=1
-                    }
+                    $LoopContainer=0
+                    MoveContainer
+                }
+                Default 
+                {
+                    Write-Host "invalid input"
+                    $LoopContainer=1
                 }
             }
+        }
     #Name The Top Parent Container
     #Built Child Containers based on $Extension
     }    
 }
 
 # Function Move Script
-Function MoveContainer # Move the files from the scanned folder to the newly created parent container and child containers based on the file extensions
+function MoveContainer # Move the files from the scanned folder to the newly created parent container and child containers based on the file extensions
 {
     $MoveCount = 0
-    ForEach ($File in $FileScan)
+    foreach ($File in $FileScan)
     {
         $Extension = $File.Extension.TrimStart('.')
         $DestinationMove = Join-Path -Path $ContainerPath -ChildPath $Extension
 
-           try
+        try
         {
             Move-Item -LiteralPath $File.FullName -Destination $DestinationMove -ErrorAction Stop | Out-Null
 
@@ -153,22 +153,22 @@ Function MoveContainer # Move the files from the scanned folder to the newly cre
     }
     OrganiseMedia 
 }
-Function OrganiseMedia # Organise the files based on the file extensions and move them to their respective folders
+function OrganiseMedia # Organise the files based on the file extensions and move them to their respective folders
 {
     $Categories = 
     @{
-    ".txt" = "TextFiles"
-    ".jpg" = "Images"
-    ".pdf" = "PDFs"
+        ".txt" = "TextFiles"
+        ".jpg" = "Images"
+        ".pdf" = "PDFs"
     }
 
     $DestinationOrganisation = Join-Path -Path $ContainerPath -ChildPath $FolderName     
-    Foreach ($Extension in $Extensions)
+    foreach ($Extension in $Extensions)
     {
         $FolderName = $Extension.TrimStart('.')
 
         $ChildPath = Join-Path -Path $ContainerPath -ChildPath $FolderName
-         if ($Categories.ContainsKey($Extension))
+        if ($Categories.ContainsKey($Extension))
         {
             $FolderName = $Categories[$Extension]
         }
@@ -187,7 +187,7 @@ Function OrganiseMedia # Organise the files based on the file extensions and mov
 
 }
  
-Function GenerateReport # Generate a report of the operations performed and save it to a text file
+function GenerateReport # Generate a report of the operations performed and save it to a text file
 {
     $ComputerName = $env:COMPUTERNAME
     $User = $env:USERNAME
@@ -209,8 +209,8 @@ Function GenerateReport # Generate a report of the operations performed and save
     The amount of files scanned is $FileScanCount
     The amount of Extensions scanned is $FileTypeCount
     The amount of files moved is $MoveCount
-    This report will be contained in $ReportPath
-"@
+    This report will be contained in $ReportPath"@
+
     $Report | Out-File -FilePath $ReportPath -Encoding utf8
     Write-Host $Report
     Read-Host "Press Enter to exit"
@@ -218,7 +218,7 @@ Function GenerateReport # Generate a report of the operations performed and save
    # ContainerPath
 }
 # Generate Report within Console & in txt File
-function Invoke-start 
+function Invoke-Start 
 {
     Write-Host "When specying a path to another drive, ensure to specify the letter."
     Write-Host "Example: D:\home\user\example drive"
@@ -226,5 +226,5 @@ function Invoke-start
     PathVerification
 }
 
-Invoke-start
+Invoke-Start
 
